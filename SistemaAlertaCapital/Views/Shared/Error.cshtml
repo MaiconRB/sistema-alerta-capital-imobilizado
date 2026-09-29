@@ -1,0 +1,21 @@
+@model ErrorViewModel
+@{
+    ViewData["Title"] = "Erro";
+}
+
+@* Página exibida quando ocorre um erro não tratado (fora do ambiente de desenvolvimento) *@
+<h1 class="text-danger">Erro.</h1>
+<h2 class="text-danger">Ocorreu um erro ao processar sua solicitação.</h2>
+
+@* Identificador da requisição, útil para localizar o erro nos logs *@
+@if (Model.ShowRequestId)
+{
+    <p>
+        <strong>ID da requisição:</strong> <code>@Model.RequestId</code>
+    </p>
+}
+
+<p>
+    Verifique se o banco de dados MySQL está em execução (<code>docker compose up -d</code>)
+    e tente novamente.
+</p>

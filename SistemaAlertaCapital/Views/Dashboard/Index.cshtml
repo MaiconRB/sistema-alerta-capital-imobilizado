@@ -1,0 +1,213 @@
+@model DashboardViewModel
+@{
+    ViewData["Title"] = "Painel";
+}
+
+@* =========================================================================
+   Cabeçalho do painel
+   ========================================================================= *@
+<div class="mb-4">
+    <h1 class="h3 mb-1">Painel de Capital Imobilizado</h1>
+    <p class="text-muted mb-0">
+        Produtos sem venda há mais de <strong>@Model.DiasLimite dias</strong>
+        e o valor financeiro parado em estoque.
+    </p>
+</div>
+
+@* =========================================================================
+   Cartões de resumo
+   - Total imobilizado: soma de (estoque × custo) dos produtos parados
+   - Produtos parados / ativos: contagem de cada grupo
+   ========================================================================= *@
+<div class="row g-3 mb-4">
+    <div class="col-12 col-md-4">
+        <div class="card border-danger h-100">
+            <div class="card-body">
+                <div class="text-muted small">Capital imobilizado</div>
+                <div class="fs-3 fw-bold text-danger">@Model.TotalImobilizado.ToString("C")</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-4">
+        <div class="card border-warning h-100">
+            <div class="card-body">
+                <div class="text-muted small">Produtos parados</div>
+                <div class="fs-3 fw-bold">@Model.QuantidadeParados</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-4">
+        <div class="card border-success h-100">
+            <div class="card-body">
+                <div class="text-muted small">Produtos ativos</div>
+                <div class="fs-3 fw-bold">@Model.QuantidadeAtivos</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@* =========================================================================
+   Tabela de produtos parados
+   Já vem ordenada pelo serviço: maior valor imobilizado primeiro.
+   ========================================================================= *@
+<h2 class="h5 mb-3">Produtos parados</h2>
+
+@if (Model.ProdutosParados.Count == 0)
+{
+    @* Caso não exista nenhum produto acima do limite *@
+    <div class="alert alert-success">Nenhum produto parado. Estoque saudável!</div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th>Produto</th>
+                    <th class="text-end">Estoque</th>
+                    <th class="text-end">Custo unitário</th>
+                    <th class="text-center">Última venda</th>
+                    <th class="text-center">Dias sem venda</th>
+                    <th class="text-end">Valor imobilizado</th>
+                    <th class="text-center">Promoção</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var produto in Model.ProdutosParados)
+                {
+                    // Destaque visual: vermelho acima de 1 ano, amarelo nos demais
+                    var classeDias = produto.DiasSemVenda > 365 ? "bg-danger" : "bg-warning text-dark";
+
+                    <tr>
+                        <td>@produto.NomeProduto</td>
+                        <td class="text-end">@produto.QuantidadeEstoque</td>
+                        <td class="text-end">@produto.CustoUnitario.ToString("C")</td>
+                        <td class="text-center">@produto.DataUltimaVenda.ToString("d")</td>
+                        <td class="text-center">
+                            <span class="badge @classeDias">@produto.DiasSemVenda dias</span>
+                        </td>
+                        <td class="text-end fw-semibold">@produto.ValorImobilizado.ToString("C")</td>
+                        <td class="text-center">
+                            @* O id e o nome do produto ficam em atributos data-* para o JavaScript *@
+                            <button type="button" class="btn btn-sm btn-outline-primary btn-gerar-mensagem text-nowrap"
+                                    data-id="@produto.IdProduto" data-nome="@produto.NomeProduto">
+                                Gerar mensagem
+                            </button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+            <tfoot>
+                @* Linha de total, repetindo o valor do cartão de resumo *@
+                <tr class="table-light fw-bold">
+                    <td colspan="5" class="text-end">Total imobilizado</td>
+                    <td class="text-end">@Model.TotalImobilizado.ToString("C")</td>
+                    <td></td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+
+    <p class="small text-muted">
+        <span class="badge bg-warning text-dark">amarelo</span> mais de @Model.DiasLimite dias ·
+        <span class="badge bg-danger">vermelho</span> mais de 365 dias sem venda
+    </p>
+}
+
+@* =========================================================================
+   Token antiforgery: campo oculto gerado pelo ASP.NET Core. O JavaScript
+   o envia em cada POST para comprovar que a requisição partiu desta página.
+   ========================================================================= *@
+@Html.AntiForgeryToken()
+
+@* =========================================================================
+   Modal (janela) que exibe a mensagem promocional gerada
+   ========================================================================= *@
+<div class="modal fade" id="modalMensagem" tabindex="-1" aria-labelledby="modalMensagemTitulo" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalMensagemTitulo">Mensagem promocional</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+            </div>
+            <div class="modal-body">
+                <p class="small text-muted mb-2" id="modalMensagemProduto"></p>
+                @* Área de texto editável: o usuário pode ajustar antes de copiar *@
+                <textarea id="modalMensagemTexto" class="form-control" rows="6"></textarea>
+                <div class="mt-2" id="modalMensagemOrigem"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                <button type="button" class="btn btn-primary" id="btnCopiarMensagem">Copiar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // =====================================================================
+        // Geração de mensagem promocional
+        // Ao clicar em "Gerar mensagem", envia um POST para a Controller e
+        // exibe o texto retornado no modal.
+        // =====================================================================
+        (function () {
+            const modal = new bootstrap.Modal(document.getElementById('modalMensagem'));
+            const campoTexto = document.getElementById('modalMensagemTexto');
+            const campoProduto = document.getElementById('modalMensagemProduto');
+            const campoOrigem = document.getElementById('modalMensagemOrigem');
+            const btnCopiar = document.getElementById('btnCopiarMensagem');
+
+            // Lê o token antiforgery do campo oculto gerado por @@Html.AntiForgeryToken()
+            const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+
+            document.querySelectorAll('.btn-gerar-mensagem').forEach(function (botao) {
+                botao.addEventListener('click', async function () {
+                    const textoOriginal = botao.textContent;
+
+                    // Enquanto aguarda a IA, desabilita o botão e mostra "Gerando…"
+                    botao.disabled = true;
+                    botao.textContent = 'Gerando…';
+
+                    try {
+                        const resposta = await fetch('/Dashboard/GerarMensagem/' + botao.dataset.id, {
+                            method: 'POST',
+                            headers: { 'RequestVerificationToken': token }
+                        });
+
+                        if (!resposta.ok) {
+                            throw new Error('HTTP ' + resposta.status);
+                        }
+
+                        // Resposta esperada: { mensagem: "...", geradaPorIA: true/false }
+                        const dados = await resposta.json();
+
+                        campoProduto.textContent = 'Produto: ' + botao.dataset.nome;
+                        campoTexto.value = dados.mensagem;
+
+                        // Indica ao usuário se o texto veio da IA ou é o padrão
+                        campoOrigem.innerHTML = dados.geradaPorIA
+                            ? '<span class="badge bg-success">Gerada por IA (Gemini)</span>'
+                            : '<span class="badge bg-secondary">Mensagem padrão (IA indisponível)</span>';
+
+                        btnCopiar.textContent = 'Copiar';
+                        modal.show();
+                    } catch (erro) {
+                        alert('Não foi possível gerar a mensagem. Tente novamente.');
+                        console.error(erro);
+                    } finally {
+                        // Restaura o botão em qualquer situação (sucesso ou erro)
+                        botao.disabled = false;
+                        botao.textContent = textoOriginal;
+                    }
+                });
+            });
+
+            // Copia o texto do modal para a área de transferência
+            btnCopiar.addEventListener('click', async function () {
+                await navigator.clipboard.writeText(campoTexto.value);
+                btnCopiar.textContent = 'Copiado!';
+            });
+        })();
+    </script>
+}
