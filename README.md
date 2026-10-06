@@ -8,6 +8,8 @@ e mensagem de divulgação, sempre respeitando a regra de **nunca vender abaixo 
 
 > Projeto acadêmico de extensão. **Todos os dados são fictícios.**
 
+![Painel de Capital Imobilizado com a identidade visual da Nortesul Ferro e Aço](docs/painel.png)
+
 ---
 
 ## Tecnologias
@@ -152,3 +154,13 @@ $env:IA__Modelo = "gemini-3.8-flash"; dotnet run --project SistemaAlertaCapital
 | Sugestão aparece como "Sugestão padrão (IA indisponível)" | Sem chave, chave inválida, cota excedida ou Gemini sobrecarregado (503) | Confira a chave no passo 2; veja o motivo exato no log do terminal; se persistir, troque `IA:Modelo` |
 | Acentos aparecem como `Ã©` ou erro `Unknown column 'preco_venda'` | Banco criado com uma versão antiga do `setup_banco.sql` | Rode `docker compose down -v` e depois `docker compose up -d` |
 | `docker: failed to connect to the docker API` | Docker Desktop fechado | Abra o Docker Desktop e aguarde ele iniciar |
+
+---
+
+## Licença
+
+O código está sob a licença [MIT](LICENSE).
+
+O nome, o logotipo e a identidade visual da **Nortesul Ferro e Aço** pertencem à empresa e
+**não** estão cobertos pela licença: foram usados apenas para fins acadêmicos. Remova-os ou
+substitua-os antes de reutilizar este projeto.

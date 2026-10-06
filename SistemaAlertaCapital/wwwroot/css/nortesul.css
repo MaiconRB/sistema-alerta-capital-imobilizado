@@ -141,6 +141,13 @@ h1, h2, h3, .ns-titulo {
     white-space: nowrap;
 }
 
+/* Exceção: o nome do produto pode quebrar linha, para a tabela caber
+   inteira em telas de notebook (a partir de ~1280 px) */
+.ns-tabela td:first-child {
+    white-space: normal;
+    min-width: 13rem;
+}
+
 .ns-tabela thead th {
     background-color: var(--ns-azul);
     color: #fff;
