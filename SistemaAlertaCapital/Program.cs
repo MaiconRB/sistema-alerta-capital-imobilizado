@@ -27,11 +27,15 @@ builder.Services.AddScoped(_ => new ProdutoRepository(connectionString));
 // Registra o serviço de regras de negócio (classificação e cálculo)
 builder.Services.AddScoped<CapitalImobilizadoService>();
 
+// Registra as regras de promoção (piso de preço e descontos padrão).
+// Singleton: não guarda estado por requisição, apenas a configuração lida no início.
+builder.Services.AddSingleton<RegrasPromocao>();
+
 // Registra o serviço de IA como "typed HttpClient": o .NET gerencia o ciclo de
 // vida das conexões HTTP. O limite de tempo principal (IA:TempoLimiteSegundos)
 // é aplicado no próprio serviço; este timeout de 60 s é apenas uma rede de
 // segurança e deve ser sempre MAIOR que IA:TempoLimiteSegundos.
-builder.Services.AddHttpClient<MensagemPromocionalService>(cliente =>
+builder.Services.AddHttpClient<SugestaoPromocaoService>(cliente =>
 {
     cliente.Timeout = TimeSpan.FromSeconds(60);
 });

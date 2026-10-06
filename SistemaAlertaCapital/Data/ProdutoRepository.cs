@@ -27,6 +27,7 @@ public class ProdutoRepository
             nome_produto                             AS NomeProduto,
             quantidade_estoque                       AS QuantidadeEstoque,
             custo_unitario                           AS CustoUnitario,
+            preco_venda                              AS PrecoVenda,
             data_ultima_venda                        AS DataUltimaVenda,
             DATEDIFF(CURDATE(), data_ultima_venda)   AS DiasSemVenda,
             quantidade_estoque * custo_unitario      AS ValorImobilizado

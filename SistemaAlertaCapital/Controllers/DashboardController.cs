@@ -14,17 +14,17 @@ namespace SistemaAlertaCapital.Controllers;
 public class DashboardController : Controller
 {
     private readonly CapitalImobilizadoService _capitalService;
-    private readonly MensagemPromocionalService _mensagemService;
+    private readonly SugestaoPromocaoService _sugestaoService;
     private readonly ProdutoRepository _produtoRepository;
 
     // Os serviços são recebidos por injeção de dependência (registrados no Program.cs)
     public DashboardController(
         CapitalImobilizadoService capitalService,
-        MensagemPromocionalService mensagemService,
+        SugestaoPromocaoService sugestaoService,
         ProdutoRepository produtoRepository)
     {
         _capitalService = capitalService;
-        _mensagemService = mensagemService;
+        _sugestaoService = sugestaoService;
         _produtoRepository = produtoRepository;
     }
 
@@ -40,15 +40,16 @@ public class DashboardController : Controller
     }
 
     /// <summary>
-    /// Gera uma mensagem promocional (via IA) para o produto informado.
-    /// Chamada pelo JavaScript do painel ao clicar em "Gerar mensagem".
-    /// Acesso: POST /Dashboard/GerarMensagem/{id}
+    /// Gera uma sugestão de promoção (via IA) para o produto informado:
+    /// tipo de ação, preço promocional, indicadores e mensagem de divulgação.
+    /// Chamada pelo JavaScript do painel ao clicar em "Sugerir promoção".
+    /// Acesso: POST /Dashboard/SugerirPromocao/{id}
     /// [ValidateAntiForgeryToken] exige o token antiforgery enviado pela página,
     /// impedindo que outros sites disparem essa ação em nome do usuário.
     /// </summary>
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> GerarMensagem(int id)
+    public async Task<IActionResult> SugerirPromocao(int id)
     {
         // Busca o produto no banco; se não existir, responde 404
         var produto = await _produtoRepository.ObterPorIdAsync(id);
@@ -57,11 +58,11 @@ public class DashboardController : Controller
             return NotFound();
         }
 
-        // Gera a mensagem (IA ou padrão) e devolve em JSON:
-        // { "mensagem": "...", "geradaPorIA": true/false }
+        // Gera a sugestão (IA ou padrão), já validada pelas regras da loja,
+        // e devolve em JSON (campos do record SugestaoPromocao).
         // RequestAborted: interrompe a chamada à IA se o usuário sair da página
-        var resultado = await _mensagemService.GerarAsync(produto, HttpContext.RequestAborted);
-        return Json(resultado);
+        var sugestao = await _sugestaoService.GerarAsync(produto, HttpContext.RequestAborted);
+        return Json(sugestao);
     }
 
     /// <summary>

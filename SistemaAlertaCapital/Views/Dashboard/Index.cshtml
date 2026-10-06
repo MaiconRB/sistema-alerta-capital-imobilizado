@@ -20,27 +20,28 @@
    - Produtos parados / ativos: contagem de cada grupo
    ========================================================================= *@
 <div class="row g-3 mb-4">
+    @* Cartão de alerta (vermelho da marca): valor financeiro parado *@
     <div class="col-12 col-md-4">
-        <div class="card border-danger h-100">
+        <div class="card ns-card ns-card-alerta h-100">
             <div class="card-body">
-                <div class="text-muted small">Capital imobilizado</div>
-                <div class="fs-3 fw-bold text-danger">@Model.TotalImobilizado.ToString("C")</div>
+                <div class="ns-card-rotulo">Capital imobilizado</div>
+                <div class="ns-card-valor">@Model.TotalImobilizado.ToString("C")</div>
             </div>
         </div>
     </div>
     <div class="col-6 col-md-4">
-        <div class="card border-warning h-100">
+        <div class="card ns-card h-100">
             <div class="card-body">
-                <div class="text-muted small">Produtos parados</div>
-                <div class="fs-3 fw-bold">@Model.QuantidadeParados</div>
+                <div class="ns-card-rotulo">Produtos parados</div>
+                <div class="ns-card-valor">@Model.QuantidadeParados</div>
             </div>
         </div>
     </div>
     <div class="col-6 col-md-4">
-        <div class="card border-success h-100">
+        <div class="card ns-card h-100">
             <div class="card-body">
-                <div class="text-muted small">Produtos ativos</div>
-                <div class="fs-3 fw-bold">@Model.QuantidadeAtivos</div>
+                <div class="ns-card-rotulo">Produtos ativos</div>
+                <div class="ns-card-valor">@Model.QuantidadeAtivos</div>
             </div>
         </div>
     </div>
@@ -59,13 +60,14 @@
 }
 else
 {
-    <div class="table-responsive">
-        <table class="table table-hover align-middle">
-            <thead class="table-light">
+    <div class="table-responsive ns-tabela mb-2">
+        <table class="table table-hover align-middle mb-0">
+            <thead>
                 <tr>
                     <th>Produto</th>
                     <th class="text-end">Estoque</th>
                     <th class="text-end">Custo unitário</th>
+                    <th class="text-end">Preço de venda</th>
                     <th class="text-center">Última venda</th>
                     <th class="text-center">Dias sem venda</th>
                     <th class="text-end">Valor imobilizado</th>
@@ -75,13 +77,14 @@ else
             <tbody>
                 @foreach (var produto in Model.ProdutosParados)
                 {
-                    // Destaque visual: vermelho acima de 1 ano, amarelo nos demais
-                    var classeDias = produto.DiasSemVenda > 365 ? "bg-danger" : "bg-warning text-dark";
+                    // Destaque visual: vermelho da marca acima de 1 ano, amarelo nos demais
+                    var classeDias = produto.DiasSemVenda > 365 ? "ns-selo-critico" : "ns-selo-atencao";
 
                     <tr>
                         <td>@produto.NomeProduto</td>
                         <td class="text-end">@produto.QuantidadeEstoque</td>
                         <td class="text-end">@produto.CustoUnitario.ToString("C")</td>
+                        <td class="text-end">@produto.PrecoVenda.ToString("C")</td>
                         <td class="text-center">@produto.DataUltimaVenda.ToString("d")</td>
                         <td class="text-center">
                             <span class="badge @classeDias">@produto.DiasSemVenda dias</span>
@@ -89,9 +92,9 @@ else
                         <td class="text-end fw-semibold">@produto.ValorImobilizado.ToString("C")</td>
                         <td class="text-center">
                             @* O id e o nome do produto ficam em atributos data-* para o JavaScript *@
-                            <button type="button" class="btn btn-sm btn-outline-primary btn-gerar-mensagem text-nowrap"
+                            <button type="button" class="btn btn-sm btn-outline-primary btn-sugerir-promocao text-nowrap"
                                     data-id="@produto.IdProduto" data-nome="@produto.NomeProduto">
-                                Gerar mensagem
+                                Sugerir promoção
                             </button>
                         </td>
                     </tr>
@@ -99,8 +102,8 @@ else
             </tbody>
             <tfoot>
                 @* Linha de total, repetindo o valor do cartão de resumo *@
-                <tr class="table-light fw-bold">
-                    <td colspan="5" class="text-end">Total imobilizado</td>
+                <tr class="fw-bold">
+                    <td colspan="6" class="text-end">Total imobilizado</td>
                     <td class="text-end">@Model.TotalImobilizado.ToString("C")</td>
                     <td></td>
                 </tr>
@@ -109,8 +112,8 @@ else
     </div>
 
     <p class="small text-muted">
-        <span class="badge bg-warning text-dark">amarelo</span> mais de @Model.DiasLimite dias ·
-        <span class="badge bg-danger">vermelho</span> mais de 365 dias sem venda
+        <span class="badge ns-selo-atencao">amarelo</span> mais de @Model.DiasLimite dias ·
+        <span class="badge ns-selo-critico">vermelho</span> mais de 365 dias sem venda
     </p>
 }
 
@@ -121,24 +124,69 @@ else
 @Html.AntiForgeryToken()
 
 @* =========================================================================
-   Modal (janela) que exibe a mensagem promocional gerada
+   Modal (janela) que exibe a sugestão de promoção
+   Os campos são preenchidos pelo JavaScript abaixo com a resposta do servidor.
    ========================================================================= *@
-<div class="modal fade" id="modalMensagem" tabindex="-1" aria-labelledby="modalMensagemTitulo" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
+<div class="modal fade" id="modalPromocao" tabindex="-1" aria-labelledby="modalPromocaoTitulo" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="modalMensagemTitulo">Mensagem promocional</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+            <div class="modal-header ns-modal-cabecalho">
+                <h5 class="modal-title" id="modalPromocaoTitulo">Sugestão de promoção</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fechar"></button>
             </div>
             <div class="modal-body">
-                <p class="small text-muted mb-2" id="modalMensagemProduto"></p>
+                @* Produto, tipo de promoção e origem (IA ou padrão) *@
+                <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+                    <strong id="promoProduto" class="me-auto"></strong>
+                    <span id="promoTipo" class="badge ns-promo-tipo"></span>
+                    <span id="promoOrigem" class="badge"></span>
+                </div>
+
+                @* Preço "de/por" e desconto *@
+                <div class="ns-promo-preco mb-3">
+                    <div>
+                        <div class="small text-muted">De</div>
+                        <div class="ns-promo-de" id="promoPrecoDe"></div>
+                    </div>
+                    <div class="ns-promo-seta" aria-hidden="true">→</div>
+                    <div>
+                        <div class="small text-muted">Por</div>
+                        <div class="ns-promo-por" id="promoPrecoPor"></div>
+                    </div>
+                    <div class="ns-promo-desconto" id="promoDesconto"></div>
+                </div>
+
+                @* Indicadores calculados pelo sistema *@
+                <div class="row g-2 mb-3">
+                    <div class="col-6">
+                        <div class="ns-promo-indicador">
+                            <div class="small text-muted">Lucro por unidade</div>
+                            <div class="fw-bold" id="promoLucro"></div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="ns-promo-indicador">
+                            <div class="small text-muted">Valor a recuperar (estoque todo)</div>
+                            <div class="fw-bold" id="promoRecuperavel"></div>
+                        </div>
+                    </div>
+                </div>
+
+                @* Aviso exibido somente quando o sistema corrigiu o preço (piso = custo) *@
+                <div class="alert alert-warning py-2 small d-none" id="promoAvisoPiso">
+                    O preço foi limitado ao custo unitário: a loja não vende com prejuízo.
+                </div>
+
+                @* Justificativa da escolha *@
+                <p class="small fst-italic text-muted mb-3" id="promoJustificativa"></p>
+
                 @* Área de texto editável: o usuário pode ajustar antes de copiar *@
-                <textarea id="modalMensagemTexto" class="form-control" rows="6"></textarea>
-                <div class="mt-2" id="modalMensagemOrigem"></div>
+                <label for="promoMensagem" class="form-label fw-semibold">Mensagem para divulgação</label>
+                <textarea id="promoMensagem" class="form-control" rows="4"></textarea>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
-                <button type="button" class="btn btn-primary" id="btnCopiarMensagem">Copiar</button>
+                <button type="button" class="btn btn-primary" id="btnCopiarMensagem">Copiar mensagem</button>
             </div>
         </div>
     </div>
@@ -147,30 +195,60 @@ else
 @section Scripts {
     <script>
         // =====================================================================
-        // Geração de mensagem promocional
-        // Ao clicar em "Gerar mensagem", envia um POST para a Controller e
-        // exibe o texto retornado no modal.
+        // Sugestão de promoção
+        // Ao clicar em "Sugerir promoção", envia um POST para a Controller e
+        // exibe a sugestão retornada no modal.
+        // Segurança: os textos vindos da IA são inseridos com textContent
+        // (nunca innerHTML), para que nenhum conteúdo seja executado como código.
         // =====================================================================
         (function () {
-            const modal = new bootstrap.Modal(document.getElementById('modalMensagem'));
-            const campoTexto = document.getElementById('modalMensagemTexto');
-            const campoProduto = document.getElementById('modalMensagemProduto');
-            const campoOrigem = document.getElementById('modalMensagemOrigem');
-            const btnCopiar = document.getElementById('btnCopiarMensagem');
+            const modal = new bootstrap.Modal(document.getElementById('modalPromocao'));
+            const el = (id) => document.getElementById(id);
+            const btnCopiar = el('btnCopiarMensagem');
+
+            // Formatação de valores no padrão brasileiro (R$ 1.234,56 e 12,5%)
+            const moeda = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
+            const numero = new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 1 });
 
             // Lê o token antiforgery do campo oculto gerado por @@Html.AntiForgeryToken()
             const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
 
-            document.querySelectorAll('.btn-gerar-mensagem').forEach(function (botao) {
+            // Preenche o modal com a sugestão recebida do servidor
+            function exibirSugestao(nomeProduto, s) {
+                el('promoProduto').textContent = nomeProduto;
+                el('promoTipo').textContent = s.tipoPromocao;
+
+                // Indica se a sugestão veio da IA ou é a padrão da loja
+                const origem = el('promoOrigem');
+                origem.textContent = s.geradaPorIA ? 'Sugerida por IA (Gemini)' : 'Sugestão padrão (IA indisponível)';
+                origem.className = 'badge ' + (s.geradaPorIA ? 'bg-success' : 'bg-secondary');
+
+                el('promoPrecoDe').textContent = moeda.format(s.precoOriginal);
+                el('promoPrecoPor').textContent = moeda.format(s.precoPromocional);
+                el('promoDesconto').textContent = '-' + numero.format(s.descontoPercentual) + '%';
+
+                el('promoLucro').textContent = moeda.format(s.lucroUnitario)
+                    + ' (' + numero.format(s.margemSobreCustoPercentual) + '% sobre o custo)';
+                el('promoRecuperavel').textContent = moeda.format(s.valorRecuperavel);
+
+                el('promoAvisoPiso').classList.toggle('d-none', !s.precoAjustadoPeloPiso);
+                el('promoJustificativa').textContent = s.justificativa;
+                el('promoMensagem').value = s.mensagem;
+
+                btnCopiar.textContent = 'Copiar mensagem';
+                modal.show();
+            }
+
+            document.querySelectorAll('.btn-sugerir-promocao').forEach(function (botao) {
                 botao.addEventListener('click', async function () {
                     const textoOriginal = botao.textContent;
 
-                    // Enquanto aguarda a IA, desabilita o botão e mostra "Gerando…"
+                    // Enquanto aguarda a IA, desabilita o botão e mostra "Analisando…"
                     botao.disabled = true;
-                    botao.textContent = 'Gerando…';
+                    botao.textContent = 'Analisando…';
 
                     try {
-                        const resposta = await fetch('/Dashboard/GerarMensagem/' + botao.dataset.id, {
+                        const resposta = await fetch('/Dashboard/SugerirPromocao/' + botao.dataset.id, {
                             method: 'POST',
                             headers: { 'RequestVerificationToken': token }
                         });
@@ -179,21 +257,9 @@ else
                             throw new Error('HTTP ' + resposta.status);
                         }
 
-                        // Resposta esperada: { mensagem: "...", geradaPorIA: true/false }
-                        const dados = await resposta.json();
-
-                        campoProduto.textContent = 'Produto: ' + botao.dataset.nome;
-                        campoTexto.value = dados.mensagem;
-
-                        // Indica ao usuário se o texto veio da IA ou é o padrão
-                        campoOrigem.innerHTML = dados.geradaPorIA
-                            ? '<span class="badge bg-success">Gerada por IA (Gemini)</span>'
-                            : '<span class="badge bg-secondary">Mensagem padrão (IA indisponível)</span>';
-
-                        btnCopiar.textContent = 'Copiar';
-                        modal.show();
+                        exibirSugestao(botao.dataset.nome, await resposta.json());
                     } catch (erro) {
-                        alert('Não foi possível gerar a mensagem. Tente novamente.');
+                        alert('Não foi possível gerar a sugestão. Tente novamente.');
                         console.error(erro);
                     } finally {
                         // Restaura o botão em qualquer situação (sucesso ou erro)
@@ -203,9 +269,9 @@ else
                 });
             });
 
-            // Copia o texto do modal para a área de transferência
+            // Copia a mensagem (já com eventuais ajustes do usuário) para a área de transferência
             btnCopiar.addEventListener('click', async function () {
-                await navigator.clipboard.writeText(campoTexto.value);
+                await navigator.clipboard.writeText(el('promoMensagem').value);
                 btnCopiar.textContent = 'Copiado!';
             });
         })();

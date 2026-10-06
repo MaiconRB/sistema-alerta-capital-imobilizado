@@ -22,6 +22,9 @@ public class Produto
     /// <summary>Custo de aquisição por unidade, em R$ (coluna custo_unitario).</summary>
     public decimal CustoUnitario { get; set; }
 
+    /// <summary>Preço de venda atual ao cliente, em R$, sem promoção (coluna preco_venda).</summary>
+    public decimal PrecoVenda { get; set; }
+
     /// <summary>Data da última venda registrada (coluna data_ultima_venda).</summary>
     public DateTime DataUltimaVenda { get; set; }
 
