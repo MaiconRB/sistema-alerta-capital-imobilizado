@@ -3,26 +3,38 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - Alerta de Capital Imobilizado</title>
+    <title>@ViewData["Title"] - Alerta de Capital Imobilizado | Nortesul Ferro e Aço</title>
     <script type="importmap"></script>
+
+    @* Fontes da identidade visual (Google Fonts): Archivo para textos e Archivo Black para títulos *@
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;700&family=Archivo+Black&display=swap" />
+
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/SistemaAlertaCapital.styles.css" asp-append-version="true" />
+
+    @* Identidade visual da Nortesul: carregado por último para sobrescrever o Bootstrap *@
+    <link rel="stylesheet" href="~/css/nortesul.css" asp-append-version="true" />
 </head>
 <body>
-    @* Barra de navegação superior *@
+    @* Barra de navegação superior com o logotipo da empresa *@
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Dashboard" asp-action="Index">Alerta de Capital Imobilizado</a>
+        <nav class="navbar navbar-expand-sm navbar-light ns-navbar">
+            <div class="container">
+                <a class="navbar-brand d-flex align-items-center" asp-area="" asp-controller="Dashboard" asp-action="Index">
+                    <img src="~/img/nortesul-logo.png" alt="Nortesul Ferro e Aço" class="ns-logo" />
+                    <span class="ns-nome-sistema d-none d-md-inline">Alerta de<br />Capital Imobilizado</span>
+                </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Alternar navegação">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
+                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-end">
+                    <ul class="navbar-nav">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Dashboard" asp-action="Index">Painel</a>
+                            <a class="nav-link" asp-area="" asp-controller="Dashboard" asp-action="Index">Painel</a>
                         </li>
                     </ul>
                 </div>
@@ -31,17 +43,20 @@
     </header>
 
     @* Conteúdo de cada página é renderizado aqui *@
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
-
-    <footer class="border-top footer text-muted">
+    <main role="main" class="pb-3">
         <div class="container">
-            &copy; 2026 - Sistema de Alerta de Capital Imobilizado - Projeto acadêmico (dados fictícios)
+            @RenderBody()
+        </div>
+    </main>
+
+    @* Rodapé: deixa claro que é um projeto acadêmico com dados fictícios *@
+    <footer class="ns-rodape">
+        <div class="container">
+            <strong>Nortesul Ferro e Aço</strong> · Sistema de Alerta de Capital Imobilizado<br />
+            Projeto acadêmico de extensão · Todos os dados exibidos são fictícios · &copy; 2026
         </div>
     </footer>
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>

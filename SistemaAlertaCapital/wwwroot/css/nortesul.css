@@ -1,0 +1,272 @@
+/* =============================================================================
+   Identidade visual — Nortesul Ferro e Aço
+   Cores extraídas do logotipo oficial (azul-marinho e vermelho).
+   Fontes: Archivo (textos) e Archivo Black (títulos), via Google Fonts.
+   Este arquivo é carregado DEPOIS do Bootstrap para sobrescrever o visual padrão.
+   ============================================================================= */
+
+/* -----------------------------------------------------------------------------
+   1. Paleta da marca (variáveis reutilizadas em todo o arquivo)
+   ----------------------------------------------------------------------------- */
+:root {
+    --ns-azul: #1a1f8f;          /* azul principal do "NORTESUL" */
+    --ns-azul-escuro: #0b0b6b;   /* sombra do azul no logotipo */
+    --ns-azul-claro: #e8e9f7;    /* fundo suave para destaques */
+    --ns-vermelho: #e3000f;      /* vermelho do "FERRO E AÇO" */
+    --ns-vermelho-claro: #fdecee;/* fundo suave para alertas */
+    --ns-cinza-fundo: #f4f5f9;   /* fundo geral da página */
+
+    /* Faz o Bootstrap usar as cores da marca como "primary" e "danger" */
+    --bs-primary: var(--ns-azul);
+    --bs-primary-rgb: 26, 31, 143;
+    --bs-danger: var(--ns-vermelho);
+    --bs-danger-rgb: 227, 0, 15;
+    --bs-link-color: var(--ns-azul);
+    --bs-link-color-rgb: 26, 31, 143;
+
+    /* Fonte padrão de todo o sistema */
+    --bs-body-font-family: "Archivo", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+}
+
+/* -----------------------------------------------------------------------------
+   2. Estrutura da página
+   O rodapé passa a acompanhar o conteúdo (layout em coluna), em vez de ficar
+   fixo por posição absoluta como no template original.
+   ----------------------------------------------------------------------------- */
+body {
+    background-color: var(--ns-cinza-fundo);
+    min-height: 100vh;
+    margin-bottom: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+main {
+    flex: 1 0 auto;
+    min-width: 0;   /* impede que conteúdo largo estique a página no celular */
+}
+
+/* Títulos com a fonte "pesada", lembrando as letras do logotipo */
+h1, h2, h3, .ns-titulo {
+    font-family: "Archivo Black", "Archivo", system-ui, sans-serif;
+    color: var(--ns-azul);
+    letter-spacing: 0.01em;
+}
+
+/* -----------------------------------------------------------------------------
+   3. Barra superior: fundo branco com faixa azul-marinho e fio vermelho
+   ----------------------------------------------------------------------------- */
+.ns-navbar {
+    background-color: #fff;
+    border-bottom: 4px solid var(--ns-azul);
+    box-shadow: 0 3px 0 var(--ns-vermelho);  /* fio vermelho logo abaixo */
+    margin-bottom: 1.75rem;
+}
+
+.ns-logo {
+    height: 44px;
+    width: auto;
+}
+
+/* Nome do sistema ao lado do logotipo */
+.ns-nome-sistema {
+    border-left: 2px solid var(--ns-azul-claro);
+    padding-left: 0.75rem;
+    margin-left: 0.75rem;
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: var(--ns-azul-escuro);
+    line-height: 1.2;
+}
+
+.ns-navbar .nav-link {
+    color: var(--ns-azul) !important;
+    font-weight: 600;
+}
+
+.ns-navbar .nav-link:hover {
+    color: var(--ns-vermelho) !important;
+}
+
+/* -----------------------------------------------------------------------------
+   4. Cartões de resumo do painel
+   ----------------------------------------------------------------------------- */
+.ns-card {
+    border: 0;
+    border-left: 6px solid var(--ns-azul);
+    border-radius: 0.5rem;
+    box-shadow: 0 2px 8px rgba(11, 11, 107, 0.08);
+}
+
+.ns-card .ns-card-rotulo {
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    color: #5a5f7a;
+}
+
+.ns-card .ns-card-valor {
+    font-family: "Archivo Black", "Archivo", sans-serif;
+    font-size: 1.9rem;
+    color: var(--ns-azul);
+}
+
+/* Cartão de alerta (capital imobilizado): vermelho da marca */
+.ns-card-alerta {
+    border-left-color: var(--ns-vermelho);
+    background-color: var(--ns-vermelho-claro);
+}
+
+.ns-card-alerta .ns-card-valor {
+    color: var(--ns-vermelho);
+}
+
+/* -----------------------------------------------------------------------------
+   5. Tabela de produtos parados
+   ----------------------------------------------------------------------------- */
+.ns-tabela {
+    background-color: #fff;
+    border-radius: 0.5rem;
+    /* Mantém a rolagem horizontal do "table-responsive" em telas pequenas
+       (a tabela rola dentro da caixa, sem alargar a página) */
+    overflow-x: auto;
+    box-shadow: 0 2px 8px rgba(11, 11, 107, 0.08);
+}
+
+/* Em telas pequenas, evita que os textos quebrem em várias linhas;
+   a tabela passa a rolar lateralmente */
+.ns-tabela th,
+.ns-tabela td {
+    white-space: nowrap;
+}
+
+.ns-tabela thead th {
+    background-color: var(--ns-azul);
+    color: #fff;
+    font-weight: 600;
+    border-bottom: 0;
+}
+
+.ns-tabela tfoot td {
+    background-color: var(--ns-azul-claro);
+    color: var(--ns-azul-escuro);
+}
+
+/* Selos de "dias sem venda" */
+.ns-selo-atencao {
+    background-color: #ffc107;
+    color: #212529;
+}
+
+.ns-selo-critico {
+    background-color: var(--ns-vermelho);
+    color: #fff;
+}
+
+/* -----------------------------------------------------------------------------
+   6. Botões na cor da marca
+   ----------------------------------------------------------------------------- */
+.btn-primary {
+    --bs-btn-bg: var(--ns-azul);
+    --bs-btn-border-color: var(--ns-azul);
+    --bs-btn-hover-bg: var(--ns-azul-escuro);
+    --bs-btn-hover-border-color: var(--ns-azul-escuro);
+    --bs-btn-active-bg: var(--ns-azul-escuro);
+    --bs-btn-active-border-color: var(--ns-azul-escuro);
+}
+
+.btn-outline-primary {
+    --bs-btn-color: var(--ns-azul);
+    --bs-btn-border-color: var(--ns-azul);
+    --bs-btn-hover-bg: var(--ns-azul);
+    --bs-btn-hover-border-color: var(--ns-azul);
+    --bs-btn-active-bg: var(--ns-azul-escuro);
+    --bs-btn-active-border-color: var(--ns-azul-escuro);
+    --bs-btn-disabled-color: var(--ns-azul);
+    --bs-btn-disabled-border-color: var(--ns-azul);
+}
+
+/* Contorno de foco (acessibilidade) na cor da marca */
+.btn:focus, .btn:active:focus, .form-control:focus {
+    box-shadow: 0 0 0 0.1rem #fff, 0 0 0 0.25rem rgba(26, 31, 143, 0.5);
+}
+
+/* Cabeçalho do modal da mensagem promocional */
+.ns-modal-cabecalho {
+    background-color: var(--ns-azul);
+    color: #fff;
+}
+
+.ns-modal-cabecalho .modal-title {
+    color: #fff;
+}
+
+/* Sugestão de promoção (dentro do modal) */
+.ns-promo-tipo {
+    background-color: var(--ns-azul);
+    color: #fff;
+}
+
+/* Bloco "De → Por" com o desconto em destaque */
+.ns-promo-preco {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    background-color: var(--ns-vermelho-claro);
+}
+
+.ns-promo-de {
+    font-size: 1.1rem;
+    color: #6c757d;
+    text-decoration: line-through;
+}
+
+.ns-promo-seta {
+    font-size: 1.5rem;
+    color: var(--ns-azul);
+}
+
+.ns-promo-por {
+    font-family: "Archivo Black", "Archivo", sans-serif;
+    font-size: 1.8rem;
+    color: var(--ns-vermelho);
+}
+
+.ns-promo-desconto {
+    margin-left: auto;
+    padding: 0.35rem 0.75rem;
+    border-radius: 999px;
+    background-color: var(--ns-vermelho);
+    color: #fff;
+    font-weight: 700;
+}
+
+/* Caixas de indicadores (lucro por unidade e valor a recuperar) */
+.ns-promo-indicador {
+    height: 100%;
+    padding: 0.6rem 0.8rem;
+    border-radius: 0.5rem;
+    background-color: var(--ns-azul-claro);
+    color: var(--ns-azul-escuro);
+}
+
+/* -----------------------------------------------------------------------------
+   7. Rodapé: azul-marinho com texto branco
+   ----------------------------------------------------------------------------- */
+.ns-rodape {
+    flex-shrink: 0;
+    background-color: var(--ns-azul-escuro);
+    border-top: 3px solid var(--ns-vermelho);
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 0.85rem;
+    padding: 1rem 0;
+    margin-top: 2rem;
+}
+
+.ns-rodape strong {
+    color: #fff;
+}
