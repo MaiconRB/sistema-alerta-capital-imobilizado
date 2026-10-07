@@ -83,29 +83,41 @@ Navegador ──► DashboardController ──► CapitalImobilizadoService ─�
 
 Todos os comandos abaixo devem ser executados na **pasta raiz** do projeto.
 
-### 1. Subir o banco de dados
+### 1. Definir a senha do banco (apenas na primeira vez)
+
+Nenhuma senha fica nos arquivos versionados. Crie o arquivo `.env` a partir do modelo
+e troque o valor de `MYSQL_ROOT_PASSWORD` por uma senha sua:
+
+```powershell
+copy .env.example .env
+notepad .env
+```
+
+> O `.env` está no `.gitignore` e **nunca** deve ser enviado ao GitHub.
+
+### 2. Subir o banco de dados
 
 ```powershell
 docker compose up -d
 ```
 
 Na primeira execução, o MySQL cria o banco e insere os 30 produtos automaticamente
-(pode levar cerca de 30 segundos).
+(pode levar cerca de 30 segundos). Sem o `.env`, o Docker para com uma mensagem pedindo a senha.
 
-### 2. Configurar os segredos (apenas na primeira vez)
+### 3. Configurar os segredos da aplicação (apenas na primeira vez)
 
-As senhas e chaves **não** ficam em arquivos do projeto. Elas são guardadas no
+A aplicação também não guarda senhas em arquivos do projeto. Elas ficam no
 *User Secrets* do .NET, no perfil do seu usuário do Windows:
 
 ```powershell
-# Senha do MySQL (a mesma definida no docker-compose.yml)
-dotnet user-secrets set "MySql:Senha" "dev123" --project SistemaAlertaCapital
+# Senha do MySQL (a MESMA definida no arquivo .env)
+dotnet user-secrets set "MySql:Senha" "SUA-SENHA-DO-.env" --project SistemaAlertaCapital
 
 # Chave do Gemini (opcional; sem ela, o sistema usa a sugestão padrão)
 dotnet user-secrets set "IA:ChaveApi" "SUA-CHAVE-AQUI" --project SistemaAlertaCapital
 ```
 
-### 3. Executar a aplicação
+### 4. Executar a aplicação
 
 ```powershell
 dotnet run --project SistemaAlertaCapital
@@ -150,9 +162,10 @@ $env:IA__Modelo = "gemini-3.8-flash"; dotnet run --project SistemaAlertaCapital
 | Sintoma | Causa provável | Solução |
 |---|---|---|
 | Página de erro ao abrir o painel | MySQL desligado | Abra o Docker Desktop e rode `docker compose up -d` |
-| `Access denied for user 'root'` | Senha não configurada ou incorreta | Refaça o passo 2 (`MySql:Senha`) |
-| Sugestão aparece como "Sugestão padrão (IA indisponível)" | Sem chave, chave inválida, cota excedida ou Gemini sobrecarregado (503) | Confira a chave no passo 2; veja o motivo exato no log do terminal; se persistir, troque `IA:Modelo` |
+| `Access denied for user 'root'` | Senha do User Secrets diferente da senha do `.env` | Refaça o passo 3 (`MySql:Senha`) com a mesma senha do `.env` |
+| Sugestão aparece como "Sugestão padrão (IA indisponível)" | Sem chave, chave inválida, cota excedida ou Gemini sobrecarregado (503) | Confira a chave no passo 3; veja o motivo exato no log do terminal; se persistir, troque `IA:Modelo` |
 | Acentos aparecem como `Ã©` ou erro `Unknown column 'preco_venda'` | Banco criado com uma versão antiga do `setup_banco.sql` | Rode `docker compose down -v` e depois `docker compose up -d` |
+| `required variable MYSQL_ROOT_PASSWORD is missing a value` | Arquivo `.env` não criado | Faça o passo 1 |
 | `docker: failed to connect to the docker API` | Docker Desktop fechado | Abra o Docker Desktop e aguarde ele iniciar |
 
 ---

@@ -7,6 +7,9 @@
 #   docker compose down       -> para o container (os dados são mantidos)
 #   docker compose down -v    -> para e APAGA os dados (o setup roda de novo
 #                                na próxima subida)
+#
+# Senha: definida no arquivo .env (NÃO versionado). Crie a partir do modelo:
+#   copy .env.example .env      e depois edite a senha dentro do .env
 # =============================================================================
 
 services:
@@ -17,8 +20,9 @@ services:
     restart: unless-stopped
 
     environment:
-      # Senha do usuário root. Apenas para desenvolvimento local!
-      MYSQL_ROOT_PASSWORD: dev123
+      # Senha do usuário root, lida do arquivo .env (que fica fora do git).
+      # Se o .env não existir, o Docker para e exibe a mensagem abaixo.
+      MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD:?Defina MYSQL_ROOT_PASSWORD no arquivo .env (veja .env.example)}"
       # Fuso horário do container, para que CURDATE() use a data do Brasil
       TZ: America/Sao_Paulo
 
@@ -38,9 +42,11 @@ services:
       # Volume nomeado para persistir os dados entre reinicializações
       - mysql_dados:/var/lib/mysql
 
-    # Verifica se o MySQL já está pronto para receber conexões
+    # Verifica se o MySQL já está pronto para receber conexões.
+    # A senha vem da variável do próprio container ("$$" = "$" literal no Compose)
+    # e é passada via MYSQL_PWD, para não aparecer na linha de comando.
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-pdev123"]
+      test: ["CMD-SHELL", "MYSQL_PWD=\"$$MYSQL_ROOT_PASSWORD\" mysqladmin ping -h localhost -uroot"]
       interval: 5s
       timeout: 5s
       retries: 20
