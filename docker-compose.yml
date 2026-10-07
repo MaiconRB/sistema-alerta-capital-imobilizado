@@ -19,10 +19,13 @@ services:
     container_name: alerta_capital_mysql
     restart: unless-stopped
 
+    # A senha do root vem do arquivo .env (que fica fora do git): todas as
+    # variáveis dele são repassadas ao container. Se o .env não existir,
+    # o Docker para com o erro "env file ... not found".
+    env_file:
+      - .env
+
     environment:
-      # Senha do usuário root, lida do arquivo .env (que fica fora do git).
-      # Se o .env não existir, o Docker para e exibe a mensagem abaixo.
-      MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD:?Defina MYSQL_ROOT_PASSWORD no arquivo .env (veja .env.example)}"
       # Fuso horário do container, para que CURDATE() use a data do Brasil
       TZ: America/Sao_Paulo
 
@@ -43,10 +46,10 @@ services:
       - mysql_dados:/var/lib/mysql
 
     # Verifica se o MySQL já está pronto para receber conexões.
-    # A senha vem da variável do próprio container ("$$" = "$" literal no Compose)
-    # e é passada via MYSQL_PWD, para não aparecer na linha de comando.
+    # O "mysqladmin ping" não precisa de senha: ele retorna sucesso sempre que
+    # o servidor responde, mesmo exibindo "Access denied" no detalhe do teste.
     healthcheck:
-      test: ["CMD-SHELL", "MYSQL_PWD=\"$$MYSQL_ROOT_PASSWORD\" mysqladmin ping -h localhost -uroot"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       interval: 5s
       timeout: 5s
       retries: 20
